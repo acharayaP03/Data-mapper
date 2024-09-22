@@ -4,6 +4,8 @@ using System.IO.Enumeration;
 using System.Text.Json;
 
 var app = new DateParserApp();
+var logger = new Logger("applicationLog.txt");
+
 
 
 try
@@ -13,6 +15,7 @@ try
 catch (Exception ex)
 {
     Console.WriteLine($"Sorry! The application has experienced an unexpected error and will to be closed.");
+    logger.Log(ex);
 }
 
 
@@ -35,6 +38,7 @@ public class DateParserApp
                 fileName = Console.ReadLine();
 
                 fileContents = File.ReadAllText(fileName);
+                isFileRead = true;
             }
             catch (ArgumentNullException ex)
             {
@@ -65,7 +69,7 @@ public class DateParserApp
             var originalColor = Console.ForegroundColor;
 
             Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine($"JSON in {fileName} file wan not in a vlid format. JSON body.");
+            Console.WriteLine($"JSON in {fileName} file was not in a vlid format. JSON body.");
             Console.WriteLine(fileContents);
             Console.ForegroundColor = originalColor;
 
