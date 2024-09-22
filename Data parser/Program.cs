@@ -26,9 +26,61 @@ public class DateParserApp
 {
     public void Run()
     {
-        var isFileRead = false;
+        string? fileName = ReadValidFilePathFromUser();
+
+        var fileContents = File.ReadAllText(fileName);
+        List<VideoGame> videoGames = DeserializeJsonDataFromFile(fileName, fileContents);
+
+        videoGames = JsonSerializer.Deserialize<List<VideoGame>>(fileContents);
+
+        PrintDataFromJsonSerealized(videoGames);
+    }
+
+    private static void PrintDataFromJsonSerealized(List<VideoGame> videoGames)
+    {
+        if (videoGames.Count > 0)
+        {
+            Console.WriteLine();
+            Console.WriteLine("Loaded games are: :");
+            foreach (var game in videoGames)
+            {
+                Console.WriteLine(game);
+                Console.WriteLine();
+                //Console.WriteLine($"Title: {game.Title}, Release Year: {game.ReleaseYear}, Rating: {game.Rating}");
+            }
+        }
+        else
+        {
+            Console.WriteLine("No games found in the file.");
+        }
+    }
+
+    private static List<VideoGame> DeserializeJsonDataFromFile(string? fileName, string fileContents)
+    {
+
+
+        try
+        {
+            return JsonSerializer.Deserialize<List<VideoGame>>(fileContents);
+        }
+        catch (JsonException ex)
+        {
+            var originalColor = Console.ForegroundColor;
+
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine($"JSON in {fileName} file was not in a vlid format. JSON body.");
+            Console.WriteLine(fileContents);
+            Console.ForegroundColor = originalColor;
+
+
+            throw new JsonException($"{ex.Message} The file is: {fileName}", ex);
+        }
+    }
+
+    private static string? ReadValidFilePathFromUser()
+    {
+        var isValidFilePath = false;
         var fileName = default(string);
-        var fileContents = default(string);
 
         do
         {
@@ -50,48 +102,13 @@ public class DateParserApp
             }
             else
             {
-                fileContents = File.ReadAllText(fileName);
-                isFileRead = true;
+
+                isValidFilePath = true;
             }
 
 
-        } while (!isFileRead);
-
-        List<VideoGame> videoGames = default;
-
-        try
-        {
-            videoGames = JsonSerializer.Deserialize<List<VideoGame>>(fileContents);
-        }
-        catch (JsonException ex)
-        {
-            var originalColor = Console.ForegroundColor;
-
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine($"JSON in {fileName} file was not in a vlid format. JSON body.");
-            Console.WriteLine(fileContents);
-            Console.ForegroundColor = originalColor;
-
-
-            throw new JsonException($"{ex.Message} The file is: {fileName}", ex);
-        }
-        videoGames = JsonSerializer.Deserialize<List<VideoGame>>(fileContents);
-
-        if (videoGames.Count > 0)
-        {
-            Console.WriteLine();
-            Console.WriteLine("Loaded games are: :");
-            foreach (var game in videoGames)
-            {
-                Console.WriteLine(game);
-                Console.WriteLine();
-                //Console.WriteLine($"Title: {game.Title}, Release Year: {game.ReleaseYear}, Rating: {game.Rating}");
-            }
-        }
-        else
-        {
-            Console.WriteLine("No games found in the file.");
-        }
+        } while (!isValidFilePath);
+        return fileName;
     }
 }
 
