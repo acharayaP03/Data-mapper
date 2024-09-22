@@ -32,30 +32,29 @@ public class DateParserApp
 
         do
         {
-            try
-            {
-                Console.WriteLine("----- File data  parser -----");
-                fileName = Console.ReadLine();
 
-                fileContents = File.ReadAllText(fileName);
-                isFileRead = true;
-            }
-            catch (ArgumentNullException ex)
+            Console.WriteLine("----- File data  parser -----");
+            fileName = Console.ReadLine();
+
+            if (fileName is null)
             {
                 Console.WriteLine($"the file name cannot be null");
             }
-            catch (ArgumentException ex)
+            else if (fileName == string.Empty)
             {
                 Console.WriteLine($"the file name cannot be empty");
             }
-            catch (FileNotFoundException ex)
+            else if (!File.Exists(fileName))
             {
                 Console.WriteLine($"the file name cannot be found");
             }
-            catch (Exception ex)
+            else
             {
-                Console.WriteLine($"An error occured: {ex.Message}");
+                fileContents = File.ReadAllText(fileName);
+                isFileRead = true;
             }
+
+
         } while (!isFileRead);
 
         List<VideoGame> videoGames = default;
@@ -107,4 +106,4 @@ public class VideoGame
 
     public override string ToString() => $"Title: {Title}, Release Year: {ReleaseYear}, Rating: {Rating}";
 
-}   
+}
