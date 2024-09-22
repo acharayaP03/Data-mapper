@@ -12,7 +12,6 @@
     <Folder Include="App\" />
     <Folder Include="DataAccess\" />
     <Folder Include="Logging\" />
-    <Folder Include="Model\" />
     <Folder Include="UserInteraction\" />
   </ItemGroup>
 
