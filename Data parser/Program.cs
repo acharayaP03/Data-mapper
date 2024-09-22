@@ -24,9 +24,15 @@ Console.ReadKey();
 
 public class DateParserApp
 {
+    private readonly IUserInteractor _userInteractor;
+
+    public DateParserApp(IUserInteractor userInteractor)
+    {
+        _userInteractor = userInteractor;
+    }
     public void Run()
     {
-        string? fileName = ReadValidFilePathFromUser();
+        string? fileName = _userInteractor.ReadValidFilePath();
 
         var fileContents = File.ReadAllText(fileName);
         List<VideoGame> videoGames = DeserializeJsonDataFromFile(fileName, fileContents);
@@ -36,26 +42,24 @@ public class DateParserApp
         PrintDataFromJsonSerealized(videoGames);
     }
 
-    private static void PrintDataFromJsonSerealized(List<VideoGame> videoGames)
+    private void PrintDataFromJsonSerealized(List<VideoGame> videoGames)
     {
         if (videoGames.Count > 0)
         {
-            Console.WriteLine();
-            Console.WriteLine("Loaded games are: :");
+            _userInteractor.PrintMessage(Environment.NewLine + "Loaded file read data are here: ");
+            _userInteractor.PrintMessage("Loaded games are: :");
             foreach (var game in videoGames)
             {
-                Console.WriteLine(game);
-                Console.WriteLine();
-                //Console.WriteLine($"Title: {game.Title}, Release Year: {game.ReleaseYear}, Rating: {game.Rating}");
+                _userInteractor.PrintMessage(game.ToString());
             }
         }
         else
         {
-            Console.WriteLine("No games found in the file.");
+            _userInteractor.PrintMessage("No games found in the file.");
         }
     }
 
-    private static List<VideoGame> DeserializeJsonDataFromFile(string? fileName, string fileContents)
+    private  List<VideoGame> DeserializeJsonDataFromFile(string? fileName, string fileContents)
     {
 
 
@@ -65,19 +69,53 @@ public class DateParserApp
         }
         catch (JsonException ex)
         {
-            var originalColor = Console.ForegroundColor;
-
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine($"JSON in {fileName} file was not in a vlid format. JSON body.");
-            Console.WriteLine(fileContents);
-            Console.ForegroundColor = originalColor;
-
+            _userInteractor.PrintError($"JSON in {fileName} file was not in a vlid format. JSON body.");
+            _userInteractor.PrintError(fileContents);
 
             throw new JsonException($"{ex.Message} The file is: {fileName}", ex);
         }
     }
+}
 
-    private static string? ReadValidFilePathFromUser()
+
+public class VideoGame
+{
+    public string Title { get; init; }
+
+    public int ReleaseYear { get; init; }
+
+    public decimal Rating { get; init; }
+
+    public override string ToString() => $"Title: {Title}, Release Year: {ReleaseYear}, Rating: {Rating}";
+
+}
+
+public interface IUserInteractor
+{
+    string? ReadValidFilePath();
+
+    void PrintMessage(string message);
+
+    void PrintError(string message);
+}
+
+public class ConsoleUserInteractor : IUserInteractor
+{
+
+    public void PrintMessage(string message)
+    {
+        Console.WriteLine(message);
+    }
+
+    public void PrintError(string message)
+    {
+        var originalColor = Console.ForegroundColor;
+
+        Console.ForegroundColor = ConsoleColor.Red;
+        Console.WriteLine(message);
+        Console.ForegroundColor = originalColor;
+    }
+    public string ReadValidFilePath()
     {
         var isValidFilePath = false;
         var fileName = default(string);
@@ -102,7 +140,6 @@ public class DateParserApp
             }
             else
             {
-
                 isValidFilePath = true;
             }
 
@@ -110,17 +147,4 @@ public class DateParserApp
         } while (!isValidFilePath);
         return fileName;
     }
-}
-
-
-public class VideoGame
-{
-    public string Title { get; init; }
-
-    public int ReleaseYear { get; init; }
-
-    public decimal Rating { get; init; }
-
-    public override string ToString() => $"Title: {Title}, Release Year: {ReleaseYear}, Rating: {Rating}";
-
 }
