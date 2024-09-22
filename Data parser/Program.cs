@@ -2,12 +2,37 @@
 
 using System.Text.Json;
 
-Console.WriteLine("----- Data parser -----");
 
+var isFileRead = false;
+var fileContents = default(string);
 
-var fileName = Console.ReadLine();
+do
+{
+    try
+    {
+        Console.WriteLine("----- File data  parser -----");
+        var fileName = Console.ReadLine();
 
-var fileContents = File.ReadAllText(fileName);
+        fileContents = File.ReadAllText(fileName);
+    }
+    catch (ArgumentNullException ex)
+    {
+        Console.WriteLine($"the file name cannot be null");
+    }
+    catch(ArgumentException ex)
+    {
+        Console.WriteLine($"the file name cannot be empty");
+    }
+    catch (FileNotFoundException ex)
+    {
+        Console.WriteLine($"the file name cannot be found");
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"An error occured: {ex.Message}");
+    }
+} while (!isFileRead);
+
 
 var videoGames = JsonSerializer.Deserialize<List<VideoGame>>(fileContents);
 
